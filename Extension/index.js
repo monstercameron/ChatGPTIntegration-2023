@@ -1,12 +1,21 @@
 window.onload = async function () {
 
-  // Grabs the right-hand container
-  const element = document.getElementById('ContentFrame').contentWindow.document.getElementById('ctl00_thingsICanDoMainDiv')
+
+// Get the current URL
+const currentURL = window.location.search;
+
+// Use URLSearchParams to extract query parameters
+const urlParams = currentURL.toString();
+
+const eeid = urlParams.substring(urlParams.indexOf('eeid'+1),urlParams.substring(urlParams.indexOf('eeid')).indexOf('!'));
+
+// Print the value of 'eeid' to the console
+console.log(eeid);
+
 
   await fetch(chrome.runtime.getURL('/index.html'))
     .then(response => response.text())
     .then(data => {
-
       const tempVar = document.createElement('div');
       const mainContainer = document.querySelector('#MainContainer');
       console.log(mainContainer);
@@ -58,11 +67,14 @@ window.onload = async function () {
   });
 
   const showChatButton = document.getElementById('open-button');
+  const chatWrapperElement = document.getElementById('chatWrapper');
+  chatWrapperElement.style.visibility = 'hidden';
   showChatButton.addEventListener('click', (event) => {
     console.log("hit");
-    if (document.getElementById('chatWrapper').style.display === 'none')
-      document.getElementById('chatWrapper').style.display = 'block';
-      if (document.getElementById('chatWrapper').style.display === 'block')
-      document.getElementById('chatWrapper').style.display = 'none';
+    console.log(chatWrapperElement.style.visibility);
+    if (chatWrapperElement.style.visibility === 'visible')
+      chatWrapperElement.style.visibility = 'hidden';
+    else if (chatWrapperElement.style.visibility === 'hidden')
+      chatWrapperElement.style.visibility = 'visible';
   })
 };
