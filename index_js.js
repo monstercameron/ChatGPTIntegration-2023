@@ -130,6 +130,7 @@ class ChatAssistant {
         });
     }
 
+    
     generateParams(prompt) {
         return { results: 'test' };
     }
@@ -137,6 +138,36 @@ class ChatAssistant {
     async updateEmpName(params) {
         await util.promisify(setTimeout)(1000);
         return { results: 'test' };
+    }
+
+    async nameChange(prompt) {
+        const response = await chatCompletionFetch({
+          model: 'gpt-3.5-turbo-0613',
+          messages: [
+            { role: 'system', content: "Based on the user's response, respond with the value of the subject and the new value the user would like to change the subject to" },
+            { role: 'user', content: prompt }
+          ],
+          functions: [
+            {
+              name: 'original_name_new_name',
+              description: "Based on the user's response, respond with the value of the subject and the new value the user would like to change the subject to",
+              parameters: {
+                title: 'original name and updated name',
+                type: 'object',
+                properties: {
+                  original: { title: 'field', type: 'string' },
+                  updated: { title: 'field', type: 'string' }
+                },
+                required: ['original', 'updated']
+              }
+            }
+          ],
+          function_call: { name: 'original_name_new_name' }
+        });
+      
+        const data = JSON.stringify(response);
+        console.log(data);
+        return JSON.parse(response);
     }
 
     async summarizeResponse(initialPrompt, response) {
