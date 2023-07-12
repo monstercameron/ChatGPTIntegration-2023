@@ -1,6 +1,6 @@
 window.onload = async function () {
 
-  const OPENAI_API_KEY = 'dont push this like i did :^)';
+  const OPENAI_API_KEY = 'REMOVE THIS BEFORE YOU PUSH DEAR GOD!';
   class UI {
     constructor(chatAssistant) {
       this.chatAssistant = chatAssistant;
@@ -228,8 +228,9 @@ window.onload = async function () {
           // console.log("second e listner hit!", event.key);
           if (event.key === 'Enter' && inputField.value !== "") {
             console.log("RESOLVING SECOND E");
+            const returnValue = inputField.value;
             inputField.value = "";
-            resolve(inputField.value);
+            resolve(returnValue);
           }
         });
     
@@ -322,6 +323,7 @@ window.onload = async function () {
       console.log('Response: ' + response);
       this.chats.push({ role: 'assistant', content: response });
       const prompt = await this.promptUser(`${response} `);
+      console.log("User Prompt", prompt);
       const proceed = await this.checkUserConfirmation(prompt);
       console.log('Proceed: ' + proceed);
 
