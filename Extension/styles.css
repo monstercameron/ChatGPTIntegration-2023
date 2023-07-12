@@ -1,4 +1,4 @@
-.main {
+#chatWrapper {
   position: fixed;
   background-color: #54788e;
   width: 200px;
@@ -66,7 +66,7 @@ span.other {
   color: grey;
 }
 
-.open-button {
+#open-button {
   position: fixed;
   bottom: 15px;
   right: 15px;

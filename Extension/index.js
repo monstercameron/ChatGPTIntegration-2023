@@ -41,13 +41,28 @@ window.onload = async function () {
     chatElement.appendChild(newBubble);
   };
 
-  const el = document.getElementById('textInput');
-  console.log(el);
-  el.addEventListener('keydown', (event) => {
-    if (event.key === 'Enter') {
+  const scrollToBottom = () => {
+    const chatContainer = document.getElementById("chatWrapper");
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+  }
+
+  const inputElement = document.getElementById('textInput');
+  console.log(inputElement);
+  inputElement.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' && inputElement.value !== "") {
       event.preventDefault();
       addUserChat();
-      el.value = "";
+      scrollToBottom();
+      inputElement.value = "";
     }
   });
+
+  const showChatButton = document.getElementById('open-button');
+  showChatButton.addEventListener('click', (event) => {
+    console.log("hit");
+    if (document.getElementById('chatWrapper').style.display === 'none')
+      document.getElementById('chatWrapper').style.display = 'block';
+      if (document.getElementById('chatWrapper').style.display === 'block')
+      document.getElementById('chatWrapper').style.display = 'none';
+  })
 };
