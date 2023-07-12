@@ -1,13 +1,15 @@
 .main {
   position: fixed;
-  background-color: #54788e;
-  width: 200px;
+  background-color: rgb(218, 218, 218);
+  width: 250px;
   height: 500px;
-  bottom: 200px;
-  right: 40px;
+  bottom: 150px;
+  right: 60px;
   z-index: 9999;
+  border-radius: 20px;
   overflow-y: auto;
   overflow-x: hidden;
+  box-shadow: 6px 6px 2px 1px rgba(0, 0, 0, 0.342);
 }
 
 .bubbleWrapper {
@@ -37,9 +39,9 @@
   max-width: 700px;
   padding: 14px 18px;
   margin: 6px 8px;
-  background-color: #5b5377;
+  background-color: #005f5f;
   border-radius: 16px 16px 0 16px;
-  border: 1px solid #443f56;
+  border: 1px solid #004949;
 }
 
 .otherBubble {
@@ -47,9 +49,9 @@
   max-width: 700px;
   padding: 14px 18px;
   margin: 6px 8px;
-  background-color: #6C8EA4;
+  background-color: #00bd84;
   border-radius: 16px 16px 16px 0;
-  border: 1px solid #54788e;
+  border: 1px solid #00aa63;
 }
 
 .own {
@@ -66,13 +68,18 @@ span.other {
   color: grey;
 }
 
-.open-button {
+#textInput {
   position: fixed;
-  bottom: 15px;
-  right: 15px;
-  background-color: black;
-  width: 100px;
-  height: 100px;
+  z-index: 9999;
+}
+
+#open-button {
+  position: fixed;
+  background-color: #005f5f;
+  bottom: 20px;
+  right: 20px;
+  width: 75px;
+  height: 75px;
   border-radius: 100px;
   z-index: 9999;
 }
