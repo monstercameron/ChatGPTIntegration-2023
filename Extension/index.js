@@ -451,7 +451,7 @@ window.onload = async function () {
     async doWork(initialPrompt) {
       console.log("User Prompt", initialPrompt);
       this.addChat("user", initialPrompt);
-      const method = (await this.promptToHTTPVerb(prompt)).toUpperCase();
+      const method = (await this.promptToHTTPVerb(initialPrompt)).toUpperCase();
       console.log("Method", method);
       switch (method) {
         case 'GET':
