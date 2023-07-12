@@ -1,6 +1,6 @@
 window.onload = async function () {
 
-  const OPENAI_API_KEY = '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';
+  const OPENAI_API_KEY = 'dont push this like i did :^)';
   class UI {
     constructor(chatAssistant) {
       this.chatAssistant = chatAssistant;
@@ -145,7 +145,7 @@ window.onload = async function () {
         model: 'gpt-3.5-turbo-0613',
         messages: [
           {
-            role: 'assistant',
+            role: 'system',
             content: `Only respond with 'true' or 'false' given a user message.
                     If the user response is 'nope', then respond 'false'. If the user response is 'no', then respond 'false'.`
           },
