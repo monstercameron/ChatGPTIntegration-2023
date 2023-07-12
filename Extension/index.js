@@ -8,9 +8,10 @@ window.onload = async function () {
     .then(data => {
 
       const tempVar = document.createElement('div');
+      const mainContainer = document.querySelector('.MainContainer');
       tempVar.className = "Testcase";
       tempVar.innerHTML = data;
-      element.appendChild(tempVar);
+      mainContainer.appendChild(tempVar);
 
     }).catch(err => {
 
@@ -28,18 +29,18 @@ window.onload = async function () {
   }
 
   const addUserChat = () => {
-    const value = document.getElementById('ContentFrame').contentWindow.document.getElementById('textInput').value;
+    const value = document.getElementById('textInput').value;
     addUserChatBubble(value);
   };
 
   const addUserChatBubble = (chatText) => {
-    const chatElement = document.getElementById('ContentFrame').contentWindow.document.getElementById('chatBox');
-    const newBubble = document.getElementById('ContentFrame').contentWindow.document.createElement('div');
+    const chatElement = document.getElementById('chatBox');
+    const newBubble = document.createElement('div');
     newBubble.innerHTML = `<div class="bubbleWrapper">\n      <div class="inlineContainer own">\n        <img class="inlineIcon" src="https://www.pinclipart.com/picdir/middle/205-2059398_blinkk-en-mac-app-store-ninja-icon-transparent.png">\n        <div class="ownBubble own">\n          ${chatText}\n        </div>\n      </div><span class="own">${getTime()}</span>\n    </div>`;
     chatElement.appendChild(newBubble);
   };
 
-  const el = document.getElementById('ContentFrame').contentWindow.document.getElementById('textInput');
+  const el = document.getElementById('textInput');
   console.log(el);
   el.addEventListener('keydown', (event) => {
     if (event.key === 'Enter') {
