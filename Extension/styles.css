@@ -1,15 +1,38 @@
 .main {
   position: fixed;
   background-color: rgb(218, 218, 218);
-  width: 250px;
-  height: 500px;
+  width: 500px;
+  height: 600px;
   bottom: 150px;
   right: 60px;
   z-index: 9999;
   border-radius: 20px;
   overflow-y: auto;
   overflow-x: hidden;
-  box-shadow: 6px 6px 2px 1px rgba(0, 0, 0, 0.342);
+  box-shadow: 6px 6px 2px 1px rgba(0, 0, 0, 0.5);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  border-radius: 20px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  margin-top: 15px;
+  margin-bottom: 15px;
+  border-radius: 20px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 20px;
+
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+  border-radius: 20px;
 }
 
 .bubbleWrapper {

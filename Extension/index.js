@@ -1,5 +1,25 @@
 window.onload = async function () {
 
+  // Grab EEID
+  const urlSearch = window.location.search.toString();
+  const arr = urlSearch.split("!");
+  var eeid = 0;
+  var flag = 0;
+
+  for (var i = 0; i < arr.length; i++) 
+  {
+    if (arr[i].includes('eeid')) 
+    {
+      const split = arr[i].split("=");
+      eeid = split[1];
+      flag = 1;
+      break;
+    }
+  }
+
+  // Exit program if EEID wasn't found
+  if (flag == 0) return;
+
   // Grabs the right-hand container
   const element = document.getElementById('ContentFrame').contentWindow.document.getElementById('ctl00_thingsICanDoMainDiv')
 
@@ -10,7 +30,7 @@ window.onload = async function () {
       const tempVar = document.createElement('div');
       const mainContainer = document.querySelector('#MainContainer');
       console.log(mainContainer);
-      tempVar.className = "Testcase";
+      tempVar.className = "chatbox-parent";
       tempVar.innerHTML = data;
       mainContainer.appendChild(tempVar);
 
