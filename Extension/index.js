@@ -459,7 +459,7 @@ window.onload = async function () {
     }
   }
 
-  const chatAssistant = new ChatAssistant(ui);
+  const chatAssistant = new ChatAssistant();
   const ui = new UI(chatAssistant);
   ui.init();
 
