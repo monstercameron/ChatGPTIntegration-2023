@@ -1,12 +1,13 @@
 window.onload = async function () {
 
-  const OPENAI_API_KEY = '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';
+  const OPENAI_API_KEY = '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';
   class UI {
     constructor(chatAssistant) {
       this.chatAssistant = chatAssistant;
       this.chatAssistant.parent = this;
       this.eeid = 0;
       this.flag = 0;
+      this.inWorkflow = false;
     }
 
     async init() {
@@ -46,9 +47,13 @@ window.onload = async function () {
       console.log(inputElement);
       inputElement.addEventListener('keydown', async event => {
         if (event.key === 'Enter' && inputElement.value !== "") {
-          this.chatAssistant.doWork(inputElement.value);
+          if (!this.inWorkflow) {
+            console.log("Workflow in progress", this.inWorkflow);
+            this.chatAssistant.doWork(inputElement.value);
+            inputElement.value = "";
+          }
+          console.log("Workflow in progress two!", this.inWorkflow);
           this.scrollToBottom();
-          inputElement.value = "";
         }
       });
 
@@ -78,7 +83,7 @@ window.onload = async function () {
     addUserChatBubble(chatText) {
       const chatElement = document.getElementById('chatBox');
       const newBubble = document.createElement('div');
-      newBubble.innerHTML = `<div class="bubbleWrapper">\n      <div class="inlineContainer own">\n        <img class="inlineIcon" src="https://www.pinclipart.com/picdir/middle/205-2059398_blinkk-en-mac-app-store-ninja-icon-transparent.png">\n        <div class="ownBubble own">\n          ${chatText}\n        </div>\n      </div><span class="own">${this.getTime()}</span>\n    </div>`;
+      newBubble.innerHTML = `<div class="bubbleWrapper">\n      <div class="inlineContainer own">\n        <img class="inlineIcon" src="https://i.imgur.com/r3TyRAR.png">\n        <div class="ownBubble own">\n          ${chatText}\n        </div>\n      </div><span class="own">${this.getTime()}</span>\n    </div>`;
       chatElement.appendChild(newBubble);
     }
 
@@ -90,7 +95,7 @@ window.onload = async function () {
     addResponseChatBubble(chatText) {
       const chatElement = document.getElementById('chatBox');
       const newBubble = document.createElement('div');
-      newBubble.innerHTML = `<div class="bubbleWrapper">\n      <div class="inlineContainer">\n        <img class="inlineIcon" src="https://www.pinclipart.com/picdir/middle/205-2059398_blinkk-en-mac-app-store-ninja-icon-transparent.png">\n        <div class="otherBubble other">\n          ${chatText}\n        </div>\n      </div><span class="other">${this.getTime()}</span>\n    </div>`;
+      newBubble.innerHTML = `<div class="bubbleWrapper">\n      <div class="inlineContainer">\n        <img class="inlineIcon" src="https://i.imgur.com/pdepBdX.png">\n        <div class="otherBubble other">\n          ${chatText}\n        </div>\n      </div><span class="other">${this.getTime()}</span>\n    </div>`;
       chatElement.appendChild(newBubble);
     }
 
@@ -218,8 +223,12 @@ window.onload = async function () {
       return new Promise((resolve) => {
         const inputField = document.getElementById('textInput');
 
-        inputElement.addEventListener('keydown', async event => {
-          if (event.key === 'Enter' && inputElement.value !== "") {
+        inputField.addEventListener('keydown', async event => {
+          // console.log("second e listner hit!", inputField.value);
+          // console.log("second e listner hit!", event.key);
+          if (event.key === 'Enter' && inputField.value !== "") {
+            console.log("RESOLVING SECOND E");
+            inputField.value = "";
             resolve(inputField.value);
           }
         });
@@ -348,6 +357,15 @@ window.onload = async function () {
       }
     }
 
+    async chat(initialPrompt) {
+      const response = await this.chatCompletionFetch({
+        model: 'gpt-3.5-turbo-0613',
+        messages: this.chats,
+      });
+      const chatResponse = response.choices[0].message.content;
+      this.addChat('assistant', chatResponse);
+    }
+
     async putV2() {
       console.log("In put method :D");
       const initialPrompt = this.chats[this.chats.length - 1].content;
@@ -355,6 +373,7 @@ window.onload = async function () {
       console.log('Response: ' + response);
       this.addChat('assistant', response);
       const prompt = await this.promptUser(`${response} `);
+      console.log("Escaped the second e listen");
       const proceed = await this.checkUserConfirmation(prompt);
       console.log('Proceed: ' + proceed);
 
@@ -419,6 +438,7 @@ window.onload = async function () {
 
     reset() {
       this.chats = this.chats.slice(0, 2);
+      this.parent.clearChat();
     }
 
     async run() {
@@ -449,6 +469,7 @@ window.onload = async function () {
     }
 
     async doWork(initialPrompt) {
+      this.parent.inWorkflow = true;
       console.log("User Prompt", initialPrompt);
       this.addChat("user", initialPrompt);
       const method = (await this.promptToHTTPVerb(initialPrompt)).toUpperCase();
@@ -461,15 +482,17 @@ window.onload = async function () {
           this.post();
           break;
         case 'PUT':
-          this.putV2();
+          await this.putV2();
           break;
         case 'DELETE':
           console.log('Not implemented');
           break;
         default:
-          console.log('Not implemented');
+          console.log('Default');
+          await this.chat(initialPrompt);
           break;
       }
+      this.parent.inWorkflow = false;
 
 
     }
