@@ -21,12 +21,11 @@ window.onload = async function () {
   if (flag == 0) return;
 
   // Grabs the right-hand container
-  const element = document.getElementById('ContentFrame').contentWindow.document.getElementById('ctl00_thingsICanDoMainDiv')
+  const element = document.getElementById('ContentFrame').contentWindow.document.getElementById('ctl00_thingsICanDoMainDiv');
 
   await fetch(chrome.runtime.getURL('/index.html'))
     .then(response => response.text())
     .then(data => {
-
       const tempVar = document.createElement('div');
       const mainContainer = document.querySelector('#MainContainer');
       console.log(mainContainer);
@@ -61,13 +60,31 @@ window.onload = async function () {
     chatElement.appendChild(newBubble);
   };
 
-  const el = document.getElementById('textInput');
-  console.log(el);
-  el.addEventListener('keydown', (event) => {
-    if (event.key === 'Enter') {
+  const scrollToBottom = () => {
+    const chatContainer = document.getElementById("chatWrapper");
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+  }
+
+  const inputElement = document.getElementById('textInput');
+  console.log(inputElement);
+  inputElement.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' && inputElement.value !== "") {
       event.preventDefault();
       addUserChat();
-      el.value = "";
+      scrollToBottom();
+      inputElement.value = "";
     }
   });
+
+  const showChatButton = document.getElementById('open-button');
+  const chatWrapperElement = document.getElementById('chatWrapper');
+  chatWrapperElement.style.visibility = 'hidden';
+  showChatButton.addEventListener('click', (event) => {
+    console.log("hit");
+    console.log(chatWrapperElement.style.visibility);
+    if (chatWrapperElement.style.visibility === 'visible')
+      chatWrapperElement.style.visibility = 'hidden';
+    else if (chatWrapperElement.style.visibility === 'hidden')
+      chatWrapperElement.style.visibility = 'visible';
+  })
 };
