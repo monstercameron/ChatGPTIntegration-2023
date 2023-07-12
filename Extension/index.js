@@ -1,5 +1,6 @@
 window.onload = async function () {
 
+  const OPENAI_API_KEY = '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';
   class UI {
     constructor(chatAssistant) {
       this.chatAssistant = chatAssistant;
@@ -8,7 +9,7 @@ window.onload = async function () {
       this.flag = 0;
     }
 
-    init() {
+    async init() {
       const urlSearch = window.location.search.toString();
       const arr = urlSearch.split("!");
 
@@ -27,7 +28,7 @@ window.onload = async function () {
         .getElementById('ContentFrame')
         .contentWindow.document.getElementById('ctl00_thingsICanDoMainDiv');
 
-      fetch(chrome.runtime.getURL('/index.html'))
+      await fetch(chrome.runtime.getURL('/index.html'))
         .then(response => response.text())
         .then(data => {
           const tempVar = document.createElement('div');
@@ -61,7 +62,6 @@ window.onload = async function () {
         else if (chatWrapperElement.style.visibility === 'hidden')
           chatWrapperElement.style.visibility = 'visible';
       });
-      setTimeout(() => this.clearChat(), 20000);
     }
 
     getTime() {
@@ -214,7 +214,23 @@ window.onload = async function () {
       return JSON.parse(response.choices[0].message.function_call.arguments).variation;
     }
 
-    promptUser(prompt = 'user input: ') {
+    async promptUser() {
+      return new Promise((resolve) => {
+        const inputField = document.getElementById('textInput');
+
+        inputElement.addEventListener('keydown', async event => {
+          if (event.key === 'Enter' && inputElement.value !== "") {
+            resolve(inputField.value);
+          }
+        });
+    
+        // inputField.addEventListener('change', () => {
+        //   resolve(inputField.value);
+        // });
+      });
+    }
+
+    promptUserOld(prompt = 'user input: ') {
       // const readline = require('readline').createInterface({
       //     input: process.stdin,
       //     output: process.stdout
@@ -380,7 +396,7 @@ window.onload = async function () {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`
+          Authorization: `Bearer ${OPENAI_API_KEY}`
         },
         body: JSON.stringify(params)
       });
@@ -393,7 +409,7 @@ window.onload = async function () {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`
+          Authorization: `Bearer ${OPENAI_API_KEY}`
         },
         body: JSON.stringify(params)
       });
@@ -461,6 +477,6 @@ window.onload = async function () {
 
   const chatAssistant = new ChatAssistant();
   const ui = new UI(chatAssistant);
-  ui.init();
+  await ui.init();
 
 };
