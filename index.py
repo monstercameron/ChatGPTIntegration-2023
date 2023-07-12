@@ -69,7 +69,7 @@ class ChatAssistant:
             model="gpt-3.5-turbo-0613",
             messages=[
                 {"role": "assistant",
-                    "content": "Rephrase the user response and ask them if they would like to proceed or continue in a friendly way"},
+                    "content": "summarize the user response and ask them if they would like to proceed or continue in a friendly way"},
                 {"role": "user", "content": prompt}
             ],
             functions=[
@@ -170,7 +170,7 @@ class ChatAssistant:
         print('Post route')
 
     def put(self):
-        print('Put route')
+        print('Put method')
         initial_prompt = self.chats[-1]["content"]
         print(initial_prompt)
         response = self.ask_to_proceed(initial_prompt)
@@ -179,13 +179,13 @@ class ChatAssistant:
         # print(self.chats[-1])
         prompt = self.prompt_user(prompt=f"{response} ")
         proceed = self.check_user_confirmation(prompt)
-        print(proceed)
+        print("Proceed: " + str(proceed))
         if proceed:
             print("begin steps to call api...")
             params = self.generate_params(initial_prompt)
             # this routes the context of the initial prompt to a specific API
             field = self.field_to_update(initial_prompt)
-            print("updating: " + field)
+            print("Updating: " + field)
             api = self.api_picker(field)
             if api is None:
                 print(f"updating {field}: not implemented")
