@@ -1,17 +1,27 @@
 window.onload = async function () {
 
+  // Grab EEID
+  const urlSearch = window.location.search.toString();
+  const arr = urlSearch.split("!");
+  var eeid = 0;
+  var flag = 0;
 
-// Get the current URL
-const currentURL = window.location.search;
+  for (var i = 0; i < arr.length; i++) 
+  {
+    if (arr[i].includes('eeid')) 
+    {
+      const split = arr[i].split("=");
+      eeid = split[1];
+      flag = 1;
+      break;
+    }
+  }
 
-// Use URLSearchParams to extract query parameters
-const urlParams = currentURL.toString();
+  // Exit program if EEID wasn't found
+  if (flag == 0) return;
 
-const eeid = urlParams.substring(urlParams.indexOf('eeid'+1),urlParams.substring(urlParams.indexOf('eeid')).indexOf('!'));
-
-// Print the value of 'eeid' to the console
-console.log(eeid);
-
+  // Grabs the right-hand container
+  const element = document.getElementById('ContentFrame').contentWindow.document.getElementById('ctl00_thingsICanDoMainDiv');
 
   await fetch(chrome.runtime.getURL('/index.html'))
     .then(response => response.text())
@@ -19,7 +29,7 @@ console.log(eeid);
       const tempVar = document.createElement('div');
       const mainContainer = document.querySelector('#MainContainer');
       console.log(mainContainer);
-      tempVar.className = "Testcase";
+      tempVar.className = "chatbox-parent";
       tempVar.innerHTML = data;
       mainContainer.appendChild(tempVar);
 
