@@ -48,8 +48,8 @@ window.onload = async function () {
     return `${hours}:${minutes}`;
   }
 
-  const addUserChat = () => {
-    const value = document.getElementById('textInput').value;
+
+  const addUserChat = (value) => {
     addUserChatBubble(value);
   };
 
@@ -63,28 +63,51 @@ window.onload = async function () {
   const scrollToBottom = () => {
     const chatContainer = document.getElementById("chatWrapper");
     chatContainer.scrollTop = chatContainer.scrollHeight;
-  }
+  };
+
+  const addResponseChatBubble = (chatText) => {
+    const chatElement = document.getElementById('chatBox');
+    const newBubble = document.createElement('div');
+    newBubble.innerHTML = `<div class="bubbleWrapper">\n      <div class="inlineContainer">\n        <img class="inlineIcon" src="https://www.pinclipart.com/picdir/middle/205-2059398_blinkk-en-mac-app-store-ninja-icon-transparent.png">\n        <div class="otherBubble other">\n          ${chatText}\n        </div>\n      </div><span class="other">${getTime()}</span>\n    </div>`;
+    chatElement.appendChild(newBubble);
+  };
+
+  const getResponse = async (inputText) => {
+    //Pass input to chatGPT :D
+    // const responseMessage = await response
+    setTimeout(() => addResponseChatBubble("RESPONSE WOO HOO LOL!"), 5000);
+    
+
+  } 
 
   const inputElement = document.getElementById('textInput');
   console.log(inputElement);
-  inputElement.addEventListener('keydown', (event) => {
+  inputElement.addEventListener('keydown', async (event) => {
     if (event.key === 'Enter' && inputElement.value !== "") {
       event.preventDefault();
-      addUserChat();
+      addUserChat(inputElement.value);
+      scrollToBottom();
+      await getResponse(inputElement.value);
       scrollToBottom();
       inputElement.value = "";
     }
   });
 
+  const clearChat = () => {
+    const chatElement = document.getElementById('chatBox');
+    chatElement.innerHTML = '';
+  }
+
   const showChatButton = document.getElementById('open-button');
   const chatWrapperElement = document.getElementById('chatWrapper');
   chatWrapperElement.style.visibility = 'hidden';
   showChatButton.addEventListener('click', (event) => {
-    console.log("hit");
     console.log(chatWrapperElement.style.visibility);
     if (chatWrapperElement.style.visibility === 'visible')
       chatWrapperElement.style.visibility = 'hidden';
     else if (chatWrapperElement.style.visibility === 'hidden')
       chatWrapperElement.style.visibility = 'visible';
-  })
+  });
+  setTimeout(() => clearChat(),20000);
+
 };
