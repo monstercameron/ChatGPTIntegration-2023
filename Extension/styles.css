@@ -10,7 +10,7 @@
   overflow-y: auto;
   overflow-x: hidden;
   visibility: hidden;
-  box-shadow: 6px 6px 2px 1px rgba(0, 0, 0, 0.5);
+  box-shadow: 2px 2px 8px 5px rgba(0, 0, 0, 0.5);
 }
 
 #chatBox {
@@ -22,16 +22,20 @@
 
 #textInput {
   position: sticky;
-  width: 80%;
+  width: 87.5%;
   height: 30px;
-  margin-left: 10px;
+  margin-left: 15px;
   border-radius: 20px;
-  box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.3);
+  border: 2px solid black;
   z-index: 9999;
 }
 
 input[type=text] {
   padding-left: 25px;
+}
+
+::placeholder {
+  color: rgb(0, 0, 0, 0.4);
 }
 
 ::-webkit-scrollbar {
@@ -83,7 +87,7 @@ input[type=text] {
   padding: 14px 18px;
   margin: 6px 8px;
   background-color: #005f5f;
-  border-radius: 16px 16px 0 16px;
+  border-radius: 8px 8px 0 8px;
   border: 1px solid #004949;
 }
 
@@ -93,7 +97,7 @@ input[type=text] {
   padding: 14px 18px;
   margin: 6px 8px;
   background-color: #00bd84;
-  border-radius: 16px 16px 16px 0;
+  border-radius: 8px 8px 8px 0;
   border: 1px solid #00aa63;
 }
 
