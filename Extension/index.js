@@ -8,7 +8,8 @@ window.onload = async function () {
     .then(data => {
 
       const tempVar = document.createElement('div');
-      const mainContainer = document.querySelector('.MainContainer');
+      const mainContainer = document.querySelector('#MainContainer');
+      console.log(mainContainer);
       tempVar.className = "Testcase";
       tempVar.innerHTML = data;
       mainContainer.appendChild(tempVar);
