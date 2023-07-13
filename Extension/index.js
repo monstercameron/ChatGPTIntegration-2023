@@ -5,25 +5,10 @@ window.onload = async function () {
     constructor(chatAssistant) {
       this.chatAssistant = chatAssistant;
       this.chatAssistant.parent = this;
-      this.eeid = 0;
-      this.flag = 0;
       this.inWorkflow = false;
     }
 
     async init() {
-      const urlSearch = window.location.search.toString();
-      const arr = urlSearch.split("!");
-
-      for (let i = 0; i < arr.length; i++) {
-        if (arr[i].includes('eeid')) {
-          const split = arr[i].split("=");
-          this.eeid = split[1];
-          this.flag = 1;
-          break;
-        }
-      }
-
-      if (this.flag === 0) return;
 
       const element = document
         .getElementById('ContentFrame')
@@ -88,7 +73,7 @@ window.onload = async function () {
     }
 
     scrollToBottom() {
-      const chatContainer = document.getElementById("chatWrapper");
+      const chatContainer = document.getElementById("chatBox");
       chatContainer.scrollTop = chatContainer.scrollHeight;
     }
 
@@ -105,22 +90,12 @@ window.onload = async function () {
     }
   }
 
-
   class ChatAssistant {
     constructor() {
-      
       this.chats = [
         { role: 'system', content: 'you are a helpful assistant that can make API calls' },
         { role: 'assistant', content: 'How may I help you' }
       ];
-      this.init();
-    }
-
-    async init() {
-      this.eSummaryPage = document.getElementById('ContentFrame').contentWindow.document.getElementById('FormView1').innerHTML;
-      this.eDetails = await this.extractDetails(this.eSummaryPage);
-      console.log("EMPLOYEE DETAILS",this.eDetails);
-      this.chats.push({ role: 'assistant', content: `These are the details for the current user ${JSON.stringify(this.eDetails)}` },);
     }
 
     async promptToHTTPVerb(prompt) {
@@ -239,11 +214,10 @@ window.onload = async function () {
             console.log("RESOLVING SECOND E");
             const returnValue = inputField.value;
             inputField.value = "";
-            return resolve(returnValue);
+            resolve(returnValue);
           }
-
         });
-    
+
         // inputField.addEventListener('change', () => {
         //   resolve(inputField.value);
         // });
@@ -263,45 +237,40 @@ window.onload = async function () {
       });
     }
 
-  async updateEmpName(params) {
-      //await util.promisify(setTimeout)(1000);
-      //return { results: 'test' };
-      console.log("Update empolyee name", params);
-      document.getElementById('ContentFrame').contentWindow.document.getElementById("ctl00_Content_FormView1_Label2").innerText = params.newName;
-      document.getElementById("header-title-0").innerText = params.newName;
-      document.getElementById('ContentFrame').contentWindow.document.getElementById("ctl00_Content_FormView1_lblName").innerText = params.newName;
-  }
-
-  async generateParams(prompt) {
-      const response = await this.chatCompletionFetch({
+    async generateParams(prompt) {
+      const response = await chatCompletionFetch({
         model: 'gpt-3.5-turbo-0613',
         messages: [
-          ...this.chats,
-          { role: 'assistant', content: "Given a user response, separate the first and last name by a singular space, if the user indicates that they would want to change the last name, keep the first names values, and update the last name"},
-          /*
-          { role: 'system', content: "Given a user response if it contains an employee name and the user updates the employee name, respond with the correct updated employee name. Given an example, Jack Smith and asked to update the last name to King, newName should be Jack King. Given an example, Jack Smith and asked to update the last name to Gonzalez, newName should be Jack Gonzalez" },
-          */
+          { role: 'system', content: "Based on the user's response, respond with the value of the subject and the new value the user would like to change the subject to" },
           { role: 'user', content: prompt }
         ],
         functions: [
           {
-            name: 'updateEmployeeName',
-            description: "Given a user response, separate the first and last name by a singular space, if the user indicates that they would want to change the last name, keep the first names values, and update the last name",
+            name: 'original_name_new_name',
+            description: "Based on the user's response, respond with the value of the subject and the new value the user would like to change the subject to",
             parameters: {
-              title: 'get name and updated name',
+              title: 'original name and updated name',
               type: 'object',
               properties: {
-                originalName: { title: 'originalName', type: 'string' },
-                newName: { title: 'newName', type: 'string' }
+                original: { title: 'field', type: 'string' },
+                updated: { title: 'field', type: 'string' }
               },
-              required: ['originalName', 'newName']
+              required: ['original', 'updated']
             }
           }
         ],
-        function_call: { name: 'updateEmployeeName' }
+        function_call: { name: 'original_name_new_name' }
       });
-      return JSON.parse(response.choices[0].message.function_call.arguments);
-  }
+
+      const data = JSON.stringify(response);
+      console.log(data);
+      return JSON.parse(response);
+    }
+
+    async updateEmpName(params) {
+      await util.promisify(setTimeout)(1000);
+      return { results: 'test' };
+    }
 
     async summarizeResponse(initialPrompt, response) {
       const completion = await this.completionFetch({
@@ -315,37 +284,6 @@ window.onload = async function () {
         n: 1
       });
       return completion.choices[0].text.trim();
-    }
-
-    async extractDetails(details) {
-      const response = await this.chatCompletionFetch({
-        model: 'gpt-3.5-turbo-0613',
-        messages: [
-          {
-            role: 'system',
-            content: 'Extract key details from user input such as First name, Last name, Employee Number, Address'
-          },
-          { role: 'user', content: `This is the employee's detail page that is currently being looked at: ${JSON.stringify(details)}` }
-        ],
-        functions: [
-          {
-            name: 'employeeDetailExtraction',
-            description: 'Extract all employee details from the user response',
-            parameters: {
-              title: 'Employee details',
-              type: 'object',
-              properties: { 
-                Name: { title: 'field', type: 'string' },
-                employeeNumber: { title: 'field', type: 'string' },
-                Address: { title: 'field', type: 'string' },
-             },
-              required: ['key', 'value']
-            }
-          }
-        ],
-        function_call: { name: 'employeeDetailExtraction' }
-      });
-      return JSON.parse(response.choices[0].message.function_call.arguments);
     }
 
     async fieldToUpdate(prompt) {
@@ -377,7 +315,7 @@ window.onload = async function () {
 
     apiPicker(field) {
       field = field.toLowerCase();
-      if (true) {
+      if (field === 'last_name') {
         return this.updateEmpName;
       }
       return null;
@@ -446,17 +384,15 @@ window.onload = async function () {
       const response = await this.askToProceed(initialPrompt);
       console.log('Response: ' + response);
       this.addChat('assistant', response);
-      const prompt = await this.promptUser();
-      this.addChat('user', prompt);
+      const prompt = await this.promptUser(`${response} `);
       console.log("Escaped the second e listen");
       const proceed = await this.checkUserConfirmation(prompt);
       console.log('Proceed: ' + proceed);
 
       if (proceed) {
         console.log('begin steps to call api...');
-        const params = await this.generateParams(initialPrompt);
+        const params = this.generateParams(initialPrompt);
         const field = await this.fieldToUpdate(initialPrompt);
-      
         console.log('Updating: ' + field);
         const api = this.apiPicker(field);
 
@@ -472,13 +408,13 @@ window.onload = async function () {
           "I have attemted the make the changes you requested, here are the results:"
         );
 
-        this.addChat('assistant',  variantStatement );
-        this.addChat('assistant', summaryResponse );
+        this.chats.push({ role: 'assistant', content: variantStatement });
+        this.chats.push({ role: 'assistant', content: summaryResponse });
 
-        // console.log('\n');
-        // this.chats.forEach((chat) => console.log(chat));
-        console.log('The chat! :D', this.chats);
-        // this.reset();
+        console.log('\n');
+        this.chats.forEach((chat) => console.log(chat));
+        console.log('\n\nresetting chat thread');
+        this.reset();
       } else {
         console.log('Resetting chat thread');
         this.reset();
@@ -500,7 +436,7 @@ window.onload = async function () {
     }
 
     async completionFetch(params) {
-      const response = await fetch('https://api.openai.com/v1/completions', {
+      const response = await fetch('https://api.openai.com/v1/engines/davinci/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -545,7 +481,6 @@ window.onload = async function () {
     }
 
     async doWork(initialPrompt) {
-
       this.parent.inWorkflow = true;
       console.log("User Prompt", initialPrompt);
       this.addChat("user", initialPrompt);
@@ -553,19 +488,16 @@ window.onload = async function () {
       console.log("Method", method);
       switch (method) {
         case 'GET':
-          await this.chat(initialPrompt);
-          // console.log('Not implemented');
+          console.log('Not implemented');
           break;
         case 'POST':
-          await this.chat(initialPrompt);
-          // this.post();
+          this.post();
           break;
         case 'PUT':
           await this.putV2();
           break;
         case 'DELETE':
-          await this.chat(initialPrompt);
-          // console.log('Not implemented');
+          console.log('Not implemented');
           break;
         default:
           console.log('Default');
@@ -573,7 +505,6 @@ window.onload = async function () {
           break;
       }
       this.parent.inWorkflow = false;
-      
 
 
     }
