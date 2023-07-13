@@ -69,7 +69,7 @@ class ChatAssistant:
             model="gpt-3.5-turbo-0613",
             messages=[
                 {"role": "assistant",
-                    "content": "Rephrase the user response and ask them if they would like to proceed or continue in a friendly way"},
+                    "content": "summarize the user response and ask them if they would like to proceed or continue in a friendly way"},
                 {"role": "user", "content": prompt}
             ],
             functions=[
@@ -99,7 +99,7 @@ class ChatAssistant:
             functions=[
                 {
                     "name": "variations",
-                    "description": "generate a variation of the users response",
+                    "description": "generate a frienly variation of the users response",
                     "parameters": {
                         'title': 'variation of response',
                         'type': 'object',
@@ -112,7 +112,8 @@ class ChatAssistant:
         ).choices[0]["message"]["function_call"]["arguments"]
         return json.loads(respoonse)["variation"]
 
-    def prompt_user(self, prompt="user input: ", response="Hey there, I would like to change John Snow's last name to John Doe"):
+    def prompt_user(self, prompt="user input: "):
+        response = "Hey there, I would like to change John Snow's last name to John Doe"
         if prompt != None:
             response = input(prompt)
         self.chats.append({"role": "user", "content": response})
@@ -128,7 +129,7 @@ class ChatAssistant:
     def summarize_response(self, initial_prompt, response):
         completion = openai.Completion.create(
             model="text-davinci-003",
-            prompt=f"write a verbose and friendly summary for the following prompt and response: '{initial_prompt}' and the results '{json.dumps(response)}', also analyze the results compared to the prompt",
+            prompt=f"write a verbose, cute and very friendly summary for the following prompt and response: '{initial_prompt}' and the results '{json.dumps(response)}' that were used to send an API call, also analyze the results compared to the prompt, if there are no fields that say success then the api call failed, no inside baseball",
             max_tokens=100,
             stop=None,
             temperature=0.2,
@@ -136,11 +137,40 @@ class ChatAssistant:
         )
         return completion.choices[0].text.strip()
 
+    def field_to_update(self, prompt):
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo-0613",
+            messages=[
+                {"role": "assistant",
+                    "content": "User the users response and extract only one pythonic field name that the user would like to change "},
+                {"role": "user", "content": prompt}
+            ],
+            functions=[
+                {
+                    "name": "field_extractor",
+                    "description": "extract the most lifely pythonic field name that the user would like to modify",
+                    "parameters": {
+                        'title': 'user field snake case',
+                        'type': 'object',
+                        'properties': {'field': {'title': 'field', 'type': 'string'}},
+                        'required': ['field']
+                    }
+                }
+            ],
+            function_call={"name": "field_extractor"}
+        ).choices[0]["message"]["function_call"]["arguments"]
+        return json.loads(response)["field"]
+
+    def api_picker(self, field):
+        field = field.lower()
+        if field == "last_name":
+            return self.update_emp_name
+
     def post(self):
         print('Post route')
 
     def put(self):
-        print('Put route')
+        print('Put method')
         initial_prompt = self.chats[-1]["content"]
         print(initial_prompt)
         response = self.ask_to_proceed(initial_prompt)
@@ -149,16 +179,24 @@ class ChatAssistant:
         # print(self.chats[-1])
         prompt = self.prompt_user(prompt=f"{response} ")
         proceed = self.check_user_confirmation(prompt)
-        print(proceed)
+        print("Proceed: " + str(proceed))
         if proceed:
-            print("Calling API")
+            print("begin steps to call api...")
             params = self.generate_params(initial_prompt)
-            response = self.update_emp_name(params)
+            # this routes the context of the initial prompt to a specific API
+            field = self.field_to_update(initial_prompt)
+            print("Updating: " + field)
+            api = self.api_picker(field)
+            if api is None:
+                print(f"updating {field}: not implemented")
+                return
+            print("Calling api: " + api.__name__)
+            response = api(params)
             summary_response = self.summarize_response(
                 initial_prompt, response)
-            # variant_statement = generate_variant(
-            #     "I have made the changes you requested. Here is a summary of the results:")
-            variant_statement = "I have made the changes you requested. Here is a summary of the results:"
+            variant_statement = self.generate_variant(
+                "I have attemted the make the changes you requested, here are the results:")
+            # variant_statement = "I have made the changes you requested. Here is a summary of the results:"
             self.chats.append(
                 {"role": "assistant", "content": variant_statement})
             self.chats.append(
@@ -167,7 +205,7 @@ class ChatAssistant:
             print("\n")
             for chat in self.chats:
                 print(chat)
-            print('resetting chat thread')
+            print('\n\n\resetting chat thread')
             self.reset()
         else:
             print("Resetting chat thread")
