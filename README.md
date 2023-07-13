@@ -1,94 +1,72 @@
-# UKG Hackathon Chat Assistant
+# Chat Assistant Project
 
-Welcome to the UKG Hackathon Chat Assistant! This friendly and helpful assistant is designed to assist you in making API calls. It's a 48-hour hackathon, so let's have some fun while coding!
+This project is a chat assistant that can make API calls based on user prompts and provide responses. It is built using JavaScript and the OpenAI GPT-3.5 model.
 
-## About the Chat Assistant
+## Getting Started
 
-This Chat Assistant is built using Python and leverages the power of OpenAI's GPT-3.5 language model. It provides various capabilities to interact with users, extract information, generate variations, and summarize responses.
+To use this chat assistant, you need to have an OpenAI API key. Replace the `OPENAI_API_KEY` variable in the code with your own API key.
 
 ## Usage
 
-To use the Chat Assistant, follow these steps:
+The chat assistant is designed to interact with the user through a chat interface. It listens for user input and responds accordingly. Here's how it works:
 
-1. Make sure you have the required dependencies installed. You can install them by running `pip install -r requirements.txt`.
+1. When the page loads, the `onload` function is triggered, and the chat assistant and UI are initialized.
+2. The chat assistant prompts the user with a system message and an initial assistant message.
+3. The user can enter their input in the chat interface. Pressing Enter sends the user's message to the chat assistant.
+4. The chat assistant processes the user's input and generates a response.
+5. The response is displayed in the chat interface, with a timestamp indicating the time of the response.
+6. The process continues with the user entering more messages and receiving responses.
 
-2. Set up your OpenAI API key. Create a file named `.env` and add your API key using the following format:
+The chat assistant supports the following HTTP methods: GET, POST, PUT, and DELETE. It can handle different user prompts and make API calls accordingly.
 
-   ```plaintext
-   OPENAI_API_KEY=<your_api_key>
-   ```
+## UI Class
 
-3. Run the Python code. Execute the script to start the Chat Assistant.
+The UI class handles the chat interface and user interactions. It has the following methods:
 
-   ```bash
-   python index.py
-   ```
+- `init()`: Initializes the chat interface and sets up event listeners for user input.
+- `getTime()`: Returns the current time in the format "HH:MM".
+- `addUserChat(value)`: Adds a user's chat bubble to the chat interface.
+- `addUserChatBubble(chatText)`: Creates and appends a user's chat bubble element to the chat interface.
+- `scrollToBottom()`: Scrolls the chat interface to the bottom.
+- `addResponseChatBubble(chatText)`: Creates and appends a response chat bubble element to the chat interface.
+- `clearChat()`: Clears the chat interface.
 
-4. The Chat Assistant will prompt you for user input. Feel free to provide any relevant information or make API calls.
+## ChatAssistant Class
 
-5. Enjoy a friendly conversation with the Chat Assistant and see the results!
+The ChatAssistant class handles the chat logic and API calls. It has the following methods:
 
-## Features
-
-The Chat Assistant comes with the following features:
-
-### Extract HTTP Method
-
-The assistant can extract the HTTP method (GET, POST, PUT, DELETE) from a user prompt. It ensures that you only respond with the appropriate HTTP method.
-
-### User Confirmation Check
-
-The assistant can check user confirmation by evaluating their response. You can respond with either "true" or "false" based on a positive or negative confirmation. The assistant understands variations like "nope" and "no" and responds accordingly.
-
-### Proceed Confirmation
-
-The assistant can rephrase the user's response and ask if they would like to proceed or continue. It provides a friendly and engaging way to prompt users for further action.
-
-### Generate Variations
-
-The assistant can generate variations of the user's response by rephrasing it. This feature adds fun and creativity to the conversation.
-
-### Field Extraction
-
-The assistant can extract a Pythonic field name that the user wants to modify. It identifies the most likely field from the user's response.
-
-### API Call
-
-The assistant handles API calls by routing the context to a specific API based on the field name. It executes the appropriate API function to update the specified field.
-
-### Summary Generation
-
-After making the API call, the assistant generates a verbose, cute, and friendly summary of the prompt and response. It analyzes the results compared to the initial prompt and indicates success or failure.
+- `init()`: Initializes the chat assistant and extracts employee details from the page.
+- `promptToHTTPVerb(prompt)`: Prompts the user for an HTTP method and returns the chosen method.
+- `checkUserConfirmation(prompt)`: Prompts the user for confirmation and returns a boolean value indicating the response.
+- `askToProceed(prompt)`: Summarizes the user response and asks for confirmation to proceed.
+- `generateVariant(prompt)`: Generates a variation of the user's response.
+- `promptUser()`: Prompts the user for input and returns the entered value.
+- `promptUserOld(prompt)`: Prompts the user for input using a previous method (not currently used).
+- `updateEmpName(params)`: Updates the employee name on the page with the provided parameters.
+- `generateParams(prompt)`: Generates parameters based on the user's response.
+- `summarizeResponse(initialPrompt, response)`: Summarizes the prompt and response in a friendly manner.
+- `extractDetails(details)`: Extracts key details from the user input.
+- `fieldToUpdate(prompt)`: Extracts the field name the user wants to modify.
+- `apiPicker(field)`: Picks the appropriate API method based on the field to update.
+- `post()`: Handles the POST method (not currently implemented).
+- `put()`: Handles the PUT method.
+- `chatCompletionFetch(params)`: Sends a completion request to the OpenAI API for chat-based models.
+- `completionFetch(params)`: Sends a completion request to the OpenAI API.
+- `reset()`: Resets the chat thread and clears the chat interface.
+- `run()`: Runs the chat assistant based on user input.
 
 ## Example Usage
 
-Here's an example of how you can interact with the Chat Assistant:
+Here's an example of how to use the chat assistant:
 
-```plaintext
-Prompt: Hey there, I would like to change John Snow's last name to John Doe
-Method: PUT
-Put method
-Hey there, I would like to change John Snow's last name to John Doe
-Response: You would like to change John Snow's last name to John Doe. Would you like to proceed with this change?
-You would like to change John Snow's last name to John Doe. Would you like to proceed with this change? yes
-Proceed: True
-begin steps to call api...
-Updating: last_name
-Calling api: update_emp_name
-
-
-{'role': 'system', 'content': 'you are a helpful assistant that can make API calls'}
-{'role': 'assistant', 'content': 'How may I help you'}
-{'role': 'user', 'content': "Hey there, I would like to change John Snow's last name to John Doe"}
-{'role': 'assistant', 'content': "You would like to change John Snow's last name to John Doe. Would you like to proceed with this change?"}
-{'role': 'user', 'content': 'yes'}
-{'role': 'assistant', 'content': 'I have tried to implement the changes you requested, and here are the outcomes:'}
-{'role': 'assistant', 'content': 'Hey there! We attempted to change John Snow\'s last name to John Doe by sending an API call, and we received the results \'{"results": "test"}\'. Unfortunately, since there were no fields that indicated success, it appears that the API call failed. We apologize for any inconvenience this may have caused.'}
-
-
-Resetting chat thread
+```javascript
+const chatAssistant = new ChatAssistant();
+const ui = new UI(chatAssistant);
+await ui.init();
 ```
 
-## Have Fun!
+Make sure to replace the `OPENAI_API_KEY` variable with your actual API key.
 
-Feel free to explore and experiment with the Chat Assistant during the hackathon. Enjoy coding, and don't hesitate to ask the Chat Assistant for help or assistance. Good luck with your project and have a fantastic time at the UKG Hackathon!
+## License
+
+This project is licensed under the [MIT License](LICENSE).
