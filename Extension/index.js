@@ -1,6 +1,6 @@
 window.onload = async function () {
 
-  const OPENAI_API_KEY = 'OOPS';
+  const OPENAI_API_KEY = '';
   class UI {
     constructor(chatAssistant) {
       this.chatAssistant = chatAssistant;
@@ -108,10 +108,19 @@ window.onload = async function () {
 
   class ChatAssistant {
     constructor() {
+      
       this.chats = [
         { role: 'system', content: 'you are a helpful assistant that can make API calls' },
         { role: 'assistant', content: 'How may I help you' }
       ];
+      this.init();
+    }
+
+    async init() {
+      this.eSummaryPage = document.getElementById('ContentFrame').contentWindow.document.getElementById('FormView1').innerHTML;
+      this.eDetails = await this.extractDetails(this.eSummaryPage);
+      console.log("EMPLOYEE DETAILS",this.eDetails);
+      this.chats.push({ role: 'assistant', content: `These are the details for the current user ${JSON.stringify(this.eDetails)}` },);
     }
 
     async promptToHTTPVerb(prompt) {
@@ -257,35 +266,39 @@ window.onload = async function () {
   async updateEmpName(params) {
       //await util.promisify(setTimeout)(1000);
       //return { results: 'test' };
-      console.log("Update empolyee name", params)
-      document.getElementById("ctl00_Content_FormView1_Label2").innerText = params.updated;
-      document.getElementById("header-title-0").innerText = params.updated;
-      document.getElementById("ctl00_Content_FormView1_lblName").innerText = params.updated;
+      console.log("Update empolyee name", params);
+      document.getElementById('ContentFrame').contentWindow.document.getElementById("ctl00_Content_FormView1_Label2").innerText = params.newName;
+      document.getElementById("header-title-0").innerText = params.newName;
+      document.getElementById('ContentFrame').contentWindow.document.getElementById("ctl00_Content_FormView1_lblName").innerText = params.newName;
   }
 
   async generateParams(prompt) {
       const response = await this.chatCompletionFetch({
         model: 'gpt-3.5-turbo-0613',
         messages: [
-          { role: 'system', content: "Based on the user's response, respond with the value of the subject and the new value the user would like to change the subject to" },
+          ...this.chats,
+          { role: 'assistant', content: "Given a user response, separate the first and last name by a singular space, if the user indicates that they would want to change the last name, keep the first names values, and update the last name"},
+          /*
+          { role: 'system', content: "Given a user response if it contains an employee name and the user updates the employee name, respond with the correct updated employee name. Given an example, Jack Smith and asked to update the last name to King, newName should be Jack King. Given an example, Jack Smith and asked to update the last name to Gonzalez, newName should be Jack Gonzalez" },
+          */
           { role: 'user', content: prompt }
         ],
         functions: [
           {
-            name: 'original_name_new_name',
-            description: "Based on the user's response, respond with the value of the subject and the new value the user would like to change the subject to",
+            name: 'updateEmployeeName',
+            description: "Given a user response, separate the first and last name by a singular space, if the user indicates that they would want to change the last name, keep the first names values, and update the last name",
             parameters: {
-              title: 'original name and updated name',
+              title: 'get name and updated name',
               type: 'object',
               properties: {
-                original: { title: 'field', type: 'string' },
-                updated: { title: 'field', type: 'string' }
+                originalName: { title: 'originalName', type: 'string' },
+                newName: { title: 'newName', type: 'string' }
               },
-              required: ['original', 'updated']
+              required: ['originalName', 'newName']
             }
           }
         ],
-        function_call: { name: 'original_name_new_name' }
+        function_call: { name: 'updateEmployeeName' }
       });
       return JSON.parse(response.choices[0].message.function_call.arguments);
   }
@@ -332,7 +345,7 @@ window.onload = async function () {
         ],
         function_call: { name: 'employeeDetailExtraction' }
       });
-      return JSON.parse(response.choices[0].message.function_call.arguments).field;
+      return JSON.parse(response.choices[0].message.function_call.arguments);
     }
 
     async fieldToUpdate(prompt) {
@@ -364,7 +377,7 @@ window.onload = async function () {
 
     apiPicker(field) {
       field = field.toLowerCase();
-      if (field === 'last_name') {
+      if (true) {
         return this.updateEmpName;
       }
       return null;
@@ -434,6 +447,7 @@ window.onload = async function () {
       console.log('Response: ' + response);
       this.addChat('assistant', response);
       const prompt = await this.promptUser();
+      this.addChat('user', prompt);
       console.log("Escaped the second e listen");
       const proceed = await this.checkUserConfirmation(prompt);
       console.log('Proceed: ' + proceed);
@@ -458,13 +472,13 @@ window.onload = async function () {
           "I have attemted the make the changes you requested, here are the results:"
         );
 
-        this.chats.push({ role: 'assistant', content: variantStatement });
-        this.chats.push({ role: 'assistant', content: summaryResponse });
+        this.addChat('assistant',  variantStatement );
+        this.addChat('assistant', summaryResponse );
 
-        console.log('\n');
-        this.chats.forEach((chat) => console.log(chat));
-        console.log('\n\nresetting chat thread');
-        this.reset();
+        // console.log('\n');
+        // this.chats.forEach((chat) => console.log(chat));
+        console.log('The chat! :D', this.chats);
+        // this.reset();
       } else {
         console.log('Resetting chat thread');
         this.reset();
@@ -486,7 +500,7 @@ window.onload = async function () {
     }
 
     async completionFetch(params) {
-      const response = await fetch('https://api.openai.com/v1/engines/davinci/completions', {
+      const response = await fetch('https://api.openai.com/v1/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -531,8 +545,7 @@ window.onload = async function () {
     }
 
     async doWork(initialPrompt) {
-      const eSummaryPage = document.getElementById('ContentFrame').contentWindow.document.getElementById('FormView1').innerHTML;
-      this.extractDetails(eSummaryPage);
+
       this.parent.inWorkflow = true;
       console.log("User Prompt", initialPrompt);
       this.addChat("user", initialPrompt);
@@ -540,16 +553,19 @@ window.onload = async function () {
       console.log("Method", method);
       switch (method) {
         case 'GET':
-          console.log('Not implemented');
+          await this.chat(initialPrompt);
+          // console.log('Not implemented');
           break;
         case 'POST':
-          this.post();
+          await this.chat(initialPrompt);
+          // this.post();
           break;
         case 'PUT':
           await this.putV2();
           break;
         case 'DELETE':
-          console.log('Not implemented');
+          await this.chat(initialPrompt);
+          // console.log('Not implemented');
           break;
         default:
           console.log('Default');
