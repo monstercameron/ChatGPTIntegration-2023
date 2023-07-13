@@ -1,0 +1,42 @@
+<Transactions>
+  <Transaction>
+    <Header>
+      <TransactionType>NAMEADDRESS</TransactionType>
+      <IdentifierRule>EMPLOYEEID</IdentifierRule>
+      <ApprovalRule>FORCEAUTO</ApprovalRule>
+    </Header>
+    <KeyFields>
+      <CompanyCode>USG_1</CompanyCode>
+      <Identifier>123222</Identifier>
+    </KeyFields>
+    <PrimaryAddress>
+      <AddressLine1>7 Zoo St</AddressLine1>
+      <AddressLine2>addl line2</AddressLine2>
+      <AddressCity>Waterville</AddressCity>
+      <AddressStateCode>KY</AddressStateCode>
+      <AddressCountryCode>USA</AddressCountryCode>
+      <AddressCounty>Tennen</AddressCounty>
+      <AddressZipCode>44556</AddressZipCode>
+    </PrimaryAddress>
+    <Personal>
+      <AlternateEmail>altern@eail.com</AlternateEmail>
+      <AddressEmail>main@main.com</AddressEmail>
+      <MaritalStatusCode>D</MaritalStatusCode>
+      <MailStop>124</MailStop>
+      <NameFirst>Alby</NameFirst>
+      <NameLast>MyNewLastName</NameLast>
+      <NameFormer>Albert</NameFormer>
+      <NamePreferred>Yoyo</NamePreferred>
+      <NameMiddle>Lefty</NameMiddle>
+      <NamePrefixCode>Dr</NamePrefixCode>
+      <NameSuffixCode>ESQ</NameSuffixCode>
+      <PhoneBusinessExtension>12345</PhoneBusinessExtension>
+      <PhoneBusinessNumber>1232323222</PhoneBusinessNumber>
+      <PhoneBusinessCountryCode>USA</PhoneBusinessCountryCode>
+      <PhoneHomeNumber>1232322322</PhoneHomeNumber>
+      <PhoneHomePrivate>N</PhoneHomePrivate>
+      <PhoneHomeCountryCode>USA</PhoneHomeCountryCode>
+    </Personal>
+  </Transaction>
+</Transactions>
+

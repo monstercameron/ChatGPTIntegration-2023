@@ -1,0 +1,13 @@
+<Transactions>
+    <Transaction>
+        <Header>
+            <TransactionType>NAMEADDRESS</TransactionType>
+        <IdentifierRule>EEID
+        </IdentifierRule>
+       </Header>
+       <Personal>
+        <NameFirst>Jon</NameFirst>
+        <NameLast>Snow</NameLast>
+    </Personal>
+    </Transaction>
+</Transactions>

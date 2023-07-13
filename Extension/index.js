@@ -254,14 +254,41 @@ window.onload = async function () {
       });
     }
 
-    generateParams(prompt) {
-      return { results: 'test' };
-    }
+  async updateEmpName(params) {
+      //await util.promisify(setTimeout)(1000);
+      //return { results: 'test' };
+      console.log("Update empolyee name", params)
+      document.getElementById("ctl00_Content_FormView1_Label2").innerText = params.updated;
+      document.getElementById("header-title-0").innerText = params.updated;
+      document.getElementById("ctl00_Content_FormView1_lblName").innerText = params.updated;
+  }
 
-    async updateEmpName(params) {
-      await util.promisify(setTimeout)(1000);
-      return { results: 'test' };
-    }
+  async generateParams(prompt) {
+      const response = await this.chatCompletionFetch({
+        model: 'gpt-3.5-turbo-0613',
+        messages: [
+          { role: 'system', content: "Based on the user's response, respond with the value of the subject and the new value the user would like to change the subject to" },
+          { role: 'user', content: prompt }
+        ],
+        functions: [
+          {
+            name: 'original_name_new_name',
+            description: "Based on the user's response, respond with the value of the subject and the new value the user would like to change the subject to",
+            parameters: {
+              title: 'original name and updated name',
+              type: 'object',
+              properties: {
+                original: { title: 'field', type: 'string' },
+                updated: { title: 'field', type: 'string' }
+              },
+              required: ['original', 'updated']
+            }
+          }
+        ],
+        function_call: { name: 'original_name_new_name' }
+      });
+      return JSON.parse(response.choices[0].message.function_call.arguments);
+  }
 
     async summarizeResponse(initialPrompt, response) {
       const completion = await this.completionFetch({
@@ -413,8 +440,9 @@ window.onload = async function () {
 
       if (proceed) {
         console.log('begin steps to call api...');
-        const params = this.generateParams(initialPrompt);
+        const params = await this.generateParams(initialPrompt);
         const field = await this.fieldToUpdate(initialPrompt);
+      
         console.log('Updating: ' + field);
         const api = this.apiPicker(field);
 
@@ -529,6 +557,7 @@ window.onload = async function () {
           break;
       }
       this.parent.inWorkflow = false;
+      
 
 
     }
