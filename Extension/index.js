@@ -1,6 +1,6 @@
 window.onload = async function () {
 
-  const OPENAI_API_KEY = 'REMOVE THIS BEFORE YOU PUSH DEAR GOD!';
+  const OPENAI_API_KEY = 'OOPS';
   class UI {
     constructor(chatAssistant) {
       this.chatAssistant = chatAssistant;
@@ -230,8 +230,9 @@ window.onload = async function () {
             console.log("RESOLVING SECOND E");
             const returnValue = inputField.value;
             inputField.value = "";
-            resolve(returnValue);
+            return resolve(returnValue);
           }
+
         });
     
         // inputField.addEventListener('change', () => {
@@ -274,6 +275,37 @@ window.onload = async function () {
         n: 1
       });
       return completion.choices[0].text.trim();
+    }
+
+    async extractDetails(details) {
+      const response = await this.chatCompletionFetch({
+        model: 'gpt-3.5-turbo-0613',
+        messages: [
+          {
+            role: 'system',
+            content: 'Extract key details from user input such as First name, Last name, Employee Number, Address'
+          },
+          { role: 'user', content: `This is the employee's detail page that is currently being looked at: ${JSON.stringify(details)}` }
+        ],
+        functions: [
+          {
+            name: 'employeeDetailExtraction',
+            description: 'Extract all employee details from the user response',
+            parameters: {
+              title: 'Employee details',
+              type: 'object',
+              properties: { 
+                Name: { title: 'field', type: 'string' },
+                employeeNumber: { title: 'field', type: 'string' },
+                Address: { title: 'field', type: 'string' },
+             },
+              required: ['key', 'value']
+            }
+          }
+        ],
+        function_call: { name: 'employeeDetailExtraction' }
+      });
+      return JSON.parse(response.choices[0].message.function_call.arguments).field;
     }
 
     async fieldToUpdate(prompt) {
@@ -374,7 +406,7 @@ window.onload = async function () {
       const response = await this.askToProceed(initialPrompt);
       console.log('Response: ' + response);
       this.addChat('assistant', response);
-      const prompt = await this.promptUser(`${response} `);
+      const prompt = await this.promptUser();
       console.log("Escaped the second e listen");
       const proceed = await this.checkUserConfirmation(prompt);
       console.log('Proceed: ' + proceed);
@@ -471,6 +503,8 @@ window.onload = async function () {
     }
 
     async doWork(initialPrompt) {
+      const eSummaryPage = document.getElementById('ContentFrame').contentWindow.document.getElementById('FormView1').innerHTML;
+      this.extractDetails(eSummaryPage);
       this.parent.inWorkflow = true;
       console.log("User Prompt", initialPrompt);
       this.addChat("user", initialPrompt);
