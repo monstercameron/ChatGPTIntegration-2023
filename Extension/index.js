@@ -1,6 +1,6 @@
 window.onload = async function () {
 
-  const OPENAI_API_KEY = '';
+  const OPENAI_API_KEY = ':D';
   class UI {
     constructor(chatAssistant) {
       this.chatAssistant = chatAssistant;
@@ -267,9 +267,15 @@ window.onload = async function () {
       //await util.promisify(setTimeout)(1000);
       //return { results: 'test' };
       console.log("Update empolyee name", params);
-      document.getElementById('ContentFrame').contentWindow.document.getElementById("ctl00_Content_FormView1_Label2").innerText = params.newName;
-      document.getElementById("header-title-0").innerText = params.newName;
-      document.getElementById('ContentFrame').contentWindow.document.getElementById("ctl00_Content_FormView1_lblName").innerText = params.newName;
+      try {
+        document.getElementById('ContentFrame').contentWindow.document.getElementById("ctl00_Content_FormView1_Label2").innerText = params.newName;
+        document.getElementById("header-title-0").innerText = params.newName;
+        document.getElementById('ContentFrame').contentWindow.document.getElementById("ctl00_Content_FormView1_lblName").innerText = params.newName;
+        return true;
+      } catch (error) {
+        console.error(error);
+        return false;
+      }
   }
 
   async generateParams(prompt) {
@@ -306,9 +312,7 @@ window.onload = async function () {
     async summarizeResponse(initialPrompt, response) {
       const completion = await this.completionFetch({
         model: 'text-davinci-003',
-        prompt: `write a verbose, cute and very friendly summary for the following prompt and response: '${initialPrompt}' and the results '${JSON.stringify(
-          response
-        )}' that were used to send an API call, also analyze the results compared to the prompt, if there are no fields that say success then the api call failed, no inside baseball`,
+        prompt: `write a verbose, cute and very friendly summary for the following prompt and response: '${initialPrompt}' and the result as a boolean which is: '${response}', if result is true then the results were successful, if result is false then the results were unsuccessful, no inside baseball`,
         max_tokens: 100,
         stop: null,
         temperature: 0.2,
